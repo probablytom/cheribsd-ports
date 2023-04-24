@@ -24,4 +24,14 @@ INSTALL_TARGET=	install-strip
 
 PLIST_SUB=	VALA_LIB_VERSION=${_VALA_LIB_VERSION}
 
+.include <bsd.port.pre.mk>
+
+.if ${ARCH} == aarch64c
+# Patch the vala distribution for the glib changes required on CHERI; use of gintptr rather than gsize when calling `g_once_init`.
+# As the vala compiler is written in vala, to upstream this change it will have to be made to the vala sources.
+post-patch:
+	@find ${WRKSRC} -type f -name '*.c' -exec ${REINPLACE_CMD} -e 's/static volatile gsize/static volatile gintptr/g' {} \;
+	@${REINPLACE_CMD} -e 's/volatile gsize\*/volatile gintptr\*/g' -e 's/\(gsize\) val/\(gintptr\) val/g' ${WRKSRC}/vala/valacodecontext.c
+.endif
+
 .include <bsd.port.mk>
