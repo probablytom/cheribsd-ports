@@ -1,45 +1,32 @@
---- build/toolchain/gcc_toolchain.gni.orig	2022-05-07 05:44:30 UTC
-+++ build/toolchain/gcc_toolchain.gni
-@@ -53,6 +53,11 @@ if (enable_resource_allowlist_generation) {
-       "enable_resource_allowlist_generation=true does not work for target_os=$target_os")
- }
- 
-+declare_args() {
+--- build/toolchain/gcc_toolchain.gni.orig	2022-06-24 13:58:35.000000000 +0000
++++ build/toolchain/gcc_toolchain.gni	2022-12-15 11:33:17.354996000 +0000
+@@ -32,6 +32,10 @@
+   # Use -MD instead of -MMD for compiler commands. This is useful for tracking
+   # the comprehensive set of dependencies.
+   system_headers_in_deps = false
++  extra_cflags = ""
++  extra_cppflags = ""
 +  extra_cxxflags = ""
 +  extra_ldflags = ""
-+}
-+
- # This template defines a toolchain for something that works like gcc
- # (including clang).
- #
-@@ -786,13 +791,23 @@ template("gcc_toolchain") {
+ }
+
+ # When the arg is set via args.gn, it applies to all toolchains. In order to not
+@@ -786,13 +790,12 @@
  # use_gold too.
  template("clang_toolchain") {
    gcc_toolchain(target_name) {
 -    prefix = rebase_path("$clang_base_path/bin", root_build_dir)
 -    cc = "${prefix}/clang"
 -    cxx = "${prefix}/clang++"
--    ld = cxx
++    cc = "cc"
++    cxx = "c++"
+     ld = cxx
 -    readelf = "${prefix}/llvm-readelf"
 -    ar = "${prefix}/llvm-ar"
 -    nm = "${prefix}/llvm-nm"
-+    if (is_bsd) {
-+      prefix = "%%LOCALBASE%%/bin"
-+      cc = "cc"
-+      cxx = "c++"
-+      ld = cxx
-+      readelf = "${prefix}/readelf"
-+      ar = "${prefix}/ar"
-+      nm = "${prefix}/nm"
-+    } else {
-+      prefix = rebase_path("$clang_base_path/bin", root_build_dir)
-+      cc = "$prefix/clang"
-+      cxx = "$prefix/clang++"
-+      ld = cxx
-+      readelf = "${prefix}/readelf"
-+      ar = "${prefix}/llvm-ar"
-+      nm = "${prefix}/llvm-nm"
-+    }
- 
++    readelf = "readelf"
++    ar = "ar"
++    nm = "nm"
+
      forward_variables_from(invoker,
                             [
